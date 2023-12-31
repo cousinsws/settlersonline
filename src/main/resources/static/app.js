@@ -1,6 +1,4 @@
-const client = new StompJs.Client({ //bp DNR
-    brokerURL: 'ws://192.168.1.71:8080/settlers-app'
-});
+import {client} from "./settings";
 
 client.onConnect = (frame) => { //bp DNR
     console.log('Connected: ' + frame);
