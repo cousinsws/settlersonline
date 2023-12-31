@@ -1,4 +1,6 @@
-import {client} from "./settings";
+import { getClient } from "./settings.js";
+
+const client = getClient();
 
 client.onConnect = (frame) => { //bp DNR
     console.log('Connected: ' + frame);
