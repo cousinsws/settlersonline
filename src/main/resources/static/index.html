@@ -3,6 +3,7 @@
 <head>
     <title>Settlers</title>
     <link href="/main.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="/app.js" type="module"></script>
@@ -12,6 +13,12 @@
     enabled. Please enable
     Javascript and reload this page!</h2></noscript>
 <div id="main-content" class="container">
+    <form id="name-input" style="display: block">
+        <label>Please enter a username:</label>
+        <input type="text" id="name" placeholder="username">
+        <input type="submit" value="Play Settlers">
+    </form>
+    <p id="reconnect-alert" style="display: none;">You have reconnected to a previously disconnected session.</p>
 </div>
 </body>
 </html>
