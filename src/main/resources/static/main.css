@@ -1,0 +1,19 @@
+body {
+    /*edit*/
+    background: linear-gradient(#c31600, #e14000) fixed;
+    font-family: "DM Serif Display", system-ui;
+}
+
+.title-banner {
+    font-size: 40px;
+    text-align: center;
+    flex: 1;
+}
+
+.id-title-banner {
+    font-size: 20px;
+    text-align: right;
+    vertical-align: center;
+    margin-right: 10px;
+    position: absolute
+}

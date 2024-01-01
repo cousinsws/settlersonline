@@ -73,19 +73,22 @@ function putCookie(k, v, lifetimeSeconds) {
     document.cookie = k + "=" + v + ";expires="+now.toUTCString()+";SameSite=Lax;path=/";
 }
 
+function recieveSession(sessionMessage) {
+    console.log("Connected with ID: " + JSON.parse(sessionMessage.body).id);
+    let msg = JSON.parse(sessionMessage.body);
+    let id = msg.id;
+    let name = msg.name;
+    let reconnected = msg.reconnected;
+    sessionID = id;
+    sessionName = name;
+    putCookie("name", name, sessionDisconnectLifetimeSeconds)
+    putCookie("id", id, sessionDisconnectLifetimeSeconds)
+    document.getElementById("id-title-banner").innerHTML = "\"" + name + "\" (#" + id + ")";
+    console.log("Reconnected: " + reconnected);
+}
+
 function subscribeMessageHandlers() { //will keep as BP but edit within
-    client.subscribe('/user/client/givesession', (sessionMessage) => {
-        console.log("Connected with ID: " + JSON.parse(sessionMessage.body).id);
-        let msg = JSON.parse(sessionMessage.body);
-        let id = msg.id;
-        let name = msg.name;
-        let reconnected = msg.reconnected;
-        sessionID = id;
-        sessionName = name;
-        putCookie("name", name, sessionDisconnectLifetimeSeconds)
-        putCookie("id", id, sessionDisconnectLifetimeSeconds)
-        console.log("Reconnected: " + reconnected);
-    });
+    client.subscribe('/user/client/givesession', recieveSession);
 }
 
 function connectSession(name) {

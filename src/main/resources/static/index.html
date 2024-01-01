@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Settlers</title>
+    <link href='https://fonts.googleapis.com/css?family=DM Serif Display' rel='stylesheet'>
     <link href="/main.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -13,7 +14,14 @@
     enabled. Please enable
     Javascript and reload this page!</h2></noscript>
 <div id="main-content" class="container">
-    <form id="name-input" style="display: block">
+    <div style="display: flex;">
+        <div class="title-banner">
+            Settlers of Catan Online
+        </div>
+        <div class="id-title-banner" id="id-title-banner">
+        </div>
+    </div>
+    <form class="name-input" id="name-input" style="display: block">
         <label>Please enter a username:</label>
         <input type="text" id="name" placeholder="username">
         <input type="submit" value="Play Settlers">
