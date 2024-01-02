@@ -3,7 +3,7 @@
 <head>
     <title>Settlers</title>
     <link href='https://fonts.googleapis.com/css?family=DM Serif Display' rel='stylesheet'>
-    <link href="/main.css" rel="stylesheet">
+    <link href="main.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
@@ -21,11 +21,34 @@
         <div class="id-title-banner" id="id-title-banner">
         </div>
     </div>
-    <form class="name-input" id="name-input" style="display: block">
-        <label>Please enter a username:</label>
-        <input type="text" id="name" placeholder="username">
-        <input type="submit" value="Play Settlers">
-    </form>
+    <div class="join-input"
+         style="display: none"> <!-- should be added with javascript when joined game lobby, remove later-->
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 50px; padding-inline: 100px">
+            <label style="width: 100%">Name: </label>
+            <input type="text" id="name" placeholder="username">
+        </div>
+        <form style="display: flex; flex-direction: column; row-gap: 0; margin: auto; justify-content: center; align-items: center;">
+            <div style="display: flex; justify-content: center; align-items: center; width: 80%">
+                <label style="width: 100%">Game Code: </label>
+                <input type="text" id="joinCode" placeholder="e.g. ABCD">
+            </div>
+            <button id="play-button">Play <em>Settlers</em></button>
+        </form>
+        <div style="display: flex; justify-content: center; align-items: center; margin: auto;">
+            <label>or </label>
+            <button id="create-game">Create Game</button>
+        </div>
+    </div>
+    <div class="game-lobby">
+        <p style="margin: 0px 0px; font-size: 30px;">ABCD<br>Waiting for players...</p>
+        <h3 style="margin-top: 25px; margin-bottom: 0">Connected (4/4)</h3>
+        <div id="connected-players">
+            <div class="connected-player">&#9733;NC&#9733;</div>
+            <div class="connected-player">Sam (You)</div>
+            <div class="connected-player">BOT Candamir</div>
+            <div class="connected-player">BOT Hildegard</div>
+        </div>
+    </div>
     <p id="reconnect-alert" style="display: none;">You have reconnected to a previously disconnected session.</p>
 </div>
 </body>

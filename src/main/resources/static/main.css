@@ -2,6 +2,7 @@ body {
     /*edit*/
     background: linear-gradient(#c31600, #e14000) fixed;
     font-family: "DM Serif Display", system-ui;
+    color: black;
 }
 
 .title-banner {
@@ -16,4 +17,90 @@ body {
     vertical-align: center;
     margin-right: 10px;
     position: absolute
+}
+
+.join-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 45px;
+    margin: auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.game-lobby {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 45px;
+    row-gap: 0px;
+    margin: auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#connected-players {
+
+}
+
+.connected-player {
+    border-block:2px solid black;
+    margin-top: -1px;
+    padding: 10px 40px;
+    border-radius: 15px;
+}
+
+button {
+    font: inherit;
+    justify-self: center;
+    border: transparent;
+    background-color: #f4ca35;
+    border-radius: 10px;
+    padding-inline: 10px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+#play-button {
+    font-size: 70px;
+    margin-block: 20px;
+}
+
+input[type=text] {
+    font-family: inherit;
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    border-top: 2px solid #f4ca35;
+    border-bottom: 2px solid #f4ca35;
+    outline: 0;
+    font-size: 1.3rem;
+    color: white;
+    padding: 7px 0;
+    margin-left: 10px;
+    background: transparent;
+    transition: border-color 0.2s;
+}
+
+::placeholder {
+    color: #f4ca35;
+}
+
+:placeholder-shown ~ input[type=text] {
+    font-size: 1.3rem;
+    cursor: text;
+    top: 20px;
 }
