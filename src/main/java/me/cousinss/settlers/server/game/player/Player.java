@@ -18,26 +18,15 @@ public class Player {
 
     /**
      * Construct a new Player with no cards or structures.
-     * @param type the player type
-     * @param name the name
-     * @param color the piece color
+     * @param profile the player profile
      */
-    public Player(PlayerType type, String name, int id, Color color) {
-        this.profile = new Profile(id, type, name, color);
+    public Player(Profile profile) {
+        this.profile = profile;
         this.hand = new Hand<>(Card.class);
         this.cardsPlayed = new Hand<>(Card.class);
         this.pieces = new Hand<>(PieceType.class);
         this.victoryBonuses = EnumSet.noneOf(VictoryBonus.class);
         this.colonialScore = 0;
-    }
-
-    /**
-     * Construct a new Player of the next available piece Color with no cards or structures.
-     * @param type the player type
-     * @param name the name
-     */
-    public Player(PlayerType type, String name, int id) {
-        this(type, name, id, Color.values()[id]);
     }
 
     public Profile getProfile() {
@@ -97,17 +86,29 @@ public class Player {
         return this.getPublicScore() + this.cardsPlayed.count(Card.VICTORY_POINT);
     }
 
-    public record Profile(int ID, PlayerType type, String name, Color color) {}
+    public record Profile(String ID, PlayerType type, String name, Color color, boolean isLeader) {
+        public Profile setID(String newID) {
+            return new Profile(newID, type, name, color, isLeader);
+        }
+        public Profile setLeader(boolean b) {
+            return new Profile(ID, type, name, color, b);
+        }
+    }
 
     public enum Color {
-        RED,
-        BLUE,
-        WHITE,
-        ORANGE,
-        YELLOW,
-        GREEN,
-        PURPLE,
-        BLACK
+        RED("red"),
+        BLUE("blue"),
+        WHITE("white"),
+        ORANGE("orange"),
+        YELLOW("yellow"),
+        GREEN("green"),
+        PURPLE("purple"),
+        BLACK("black");
+
+        public final String colorStr;
+        Color(String colorStr) {
+            this.colorStr = colorStr;
+        }
     }
 
     public enum PlayerType {

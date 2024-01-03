@@ -35,6 +35,12 @@ body {
     white-space: nowrap;
 }
 
+#invalid-code {
+    font-size: 25px;
+    margin-top: -30px;
+    margin-bottom: 30px;
+}
+
 .game-lobby {
     display: flex;
     justify-content: center;
@@ -45,7 +51,7 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    font-size: 45px;
+    font-size: 3.5vh;
     row-gap: 0px;
     margin: auto;
     overflow: hidden;
@@ -63,6 +69,14 @@ body {
     border-radius: 15px;
 }
 
+#waiting-for-players {
+    margin: 0 0;
+}
+
+#game-start-button {
+    margin-top: 2vh;
+}
+
 button {
     font: inherit;
     justify-self: center;
@@ -74,9 +88,13 @@ button {
     vertical-align: middle;
 }
 
+button:active {
+    background-color: #d79129;
+}
+
 #play-button {
     font-size: 70px;
-    margin-block: 20px;
+    margin-block: 30px;
 }
 
 input[type=text] {
@@ -92,7 +110,10 @@ input[type=text] {
     padding: 7px 0;
     margin-left: 10px;
     background: transparent;
-    transition: border-color 0.2s;
+}
+
+#joinCode {
+    text-transform: uppercase;
 }
 
 ::placeholder {
@@ -103,4 +124,19 @@ input[type=text] {
     font-size: 1.3rem;
     cursor: text;
     top: 20px;
+}
+
+#bot-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    column-gap: 15px;
+    margin-top: 3vh;
+    margin-bottom: -3vh;
+}
+
+bot-button {
+    aspect-ratio: 1;
+    font-weight: bolder;
 }

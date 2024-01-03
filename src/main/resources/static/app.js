@@ -1,10 +1,14 @@
 import { getClient } from "./settings.js";
 
 const client = getClient();
-const sessionDisconnectLifetimeSeconds = 5; //should be like 3600 for production
+// const sessionDisconnectLifetimeSeconds = 5; //should be like 3600 for production
 
 let sessionID;
-let sessionName;
+let gameCode;
+let myProfile;
+let amLeader;
+
+// let playerList = [];
 
 function getCookie(cname) {
     let name = cname + "=";
@@ -22,28 +26,31 @@ function getCookie(cname) {
     return "";
 }
 
-function attemptReconnect() {
-    let id = getCookie("id");
-    let name = getCookie("name");
-    console.log("Attempted reconnect, got id \"" + id + "\", name \"" + name + "\"");
-    if(id === "" || name === "") {
-        console.log("Reconnect failed. Prompting new user session.")
-        return;
-    }
-    client.publish({
-        destination: "/app/reconnect",
-        body: JSON.stringify({'name': name, 'id': id})
-    });
-    console.log("Recovered disconnected session with id \"" + id + "\", name \"" + name + "\"");
-    document.getElementById("name-input").style.display = 'none';
-    document.getElementById("reconnect-alert").style.display = 'block';
-}
+// function attemptReconnect() {
+    // let id = getCookie("id");
+    // let name = getCookie("name");
+    // console.log("Attempted reconnect, got id \"" + id + "\", name \"" + name + "\"");
+    // if(id === "" || name === "") {
+    //     console.log("Reconnect failed. Prompting new user session.")
+    //     return;
+    // }
+    // client.publish({
+    //     destination: "/app/reconnect",
+    //     body: JSON.stringify({'name': name, 'id': id})
+    // });
+    // console.log("Recovered disconnected session with id \"" + id + "\", name \"" + name + "\"");
+    // document.getElementById("name-input").style.display = 'none';
+    // document.getElementById("reconnect-alert").style.display = 'block';
+// }
 
 client.onConnect = (frame) => { //bp DNR
     console.log('Connected: ' + frame);
     subscribeMessageHandlers();
-    attemptReconnect();
 };
+
+client.onDisconnect = (frame) => {
+    console.log("Disconnected: " + frame);
+}
 
 client.onWebSocketError = (error) => { //bp DNR
     console.error('Error with websocket', error);
@@ -54,15 +61,50 @@ client.onStompError = (frame) => { //bp DNR
     console.error('Additional details: ' + frame.body);
 };
 
-function connect() { //bp DNR
-    console.log("Attempting connection...");
+function connectToGameServer(name, gameCode, leader) {
+    client.reconnectDelay = 5000;
+    client.onConnect = (frame) => {
+        console.log("Connected " + frame);
+        subscribeMessageHandlers();
+        client.publish({
+            destination: '/topic/connect',
+            body: JSON.stringify({
+                profile: {
+                    ID: getCookie("sessionID"),
+                    type: "HUMAN",
+                    name: name,
+                    color: "GREEN",
+                    isLeader: leader
+                },
+                gameCode: gameCode
+            })
+        });
+    }
     client.activate();
 }
 
-//can call this ourselves, but idrk what happens on page-close
-function disconnect() { //bp DNR
-    client.deactivate();
-    console.log("Disconnected");
+$(document).ready(function() {
+    console.log('Docu');
+    $('#play-button').click(function() {
+        console.log("CLICKED PLAY");
+        connectToGameServer($("#name").val(), $("#joinCode").val().toUpperCase(), false);
+    });
+    $('#create-game').click(createAndConnectServer);
+    $('#bot-add').click(function() {addBot("ADD")})
+    $('#bot-remove').click(function() {addBot("REMOVE")})
+});
+
+function addBot(botChangeType) {
+    $.post("/queue/game/" + gameCode + "/addBot", {postType: botChangeType});
+}
+
+async function createAndConnectServer() {
+    console.log("CLICKED CREATE");
+    const codeResponse = await fetch("/queue/create-server");
+    console.log(codeResponse);
+    let code = (await codeResponse.json())[0];
+    console.log(code);
+    connectToGameServer($("#name").val(), code, true);
 }
 
 function putCookie(k, v, lifetimeSeconds) {
@@ -73,42 +115,79 @@ function putCookie(k, v, lifetimeSeconds) {
     document.cookie = k + "=" + v + ";expires="+now.toUTCString()+";SameSite=Lax;path=/";
 }
 
-function recieveSession(sessionMessage) {
-    console.log("Connected with ID: " + JSON.parse(sessionMessage.body).id);
-    let msg = JSON.parse(sessionMessage.body);
-    let id = msg.id;
-    let name = msg.name;
-    let reconnected = msg.reconnected;
-    sessionID = id;
-    sessionName = name;
-    putCookie("name", name, sessionDisconnectLifetimeSeconds)
-    putCookie("id", id, sessionDisconnectLifetimeSeconds)
-    document.getElementById("id-title-banner").innerHTML = "\"" + name + "\" (#" + id + ")";
-    console.log("Reconnected: " + reconnected);
-}
+// function receiveSession(sessionMessage) {
+//     console.log("Connected with ID: " + JSON.parse(sessionMessage.body).id);
+//     let msg = JSON.parse(sessionMessage.body);
+//     let id = msg.id;
+//     let name = msg.name;
+//     let reconnected = msg.reconnected;
+//     sessionID = id;
+//     sessionName = name;
+//     putCookie("name", name, sessionDisconnectLifetimeSeconds)
+//     putCookie("id", id, sessionDisconnectLifetimeSeconds)
+//     document.getElementById("id-title-banner").innerHTML = "\"" + name + "\" (#" + id + ")";
+//     console.log("Reconnected: " + reconnected);
+// }
 
 function subscribeMessageHandlers() { //will keep as BP but edit within
-    client.subscribe('/user/client/givesession', recieveSession);
+    client.subscribe('/user/queue/joingameserver', recieveServerJoin);
 }
 
-function connectSession(name) {
-    console.log("RAN #connectSession with " + name)
-    client.publish({
-        destination: "/app/connect",
-        body: JSON.stringify({'name': name})
-    });
-}
-
-$(function () { //runs on page load, basically
-    console.log("Docu func");
-    connect();
-});
-
-$("#name-input")[0].addEventListener("submit", e => {
-    let name = $("#name")[0].value;
-    e.preventDefault();
-    if(name == "") {
+function recieveServerJoin(payload) {
+    console.log(JSON.parse(payload.body));
+    myProfile = JSON.parse(payload.body).profile;
+    sessionID = myProfile.ID;
+    amLeader = myProfile.isLeader;
+    gameCode = JSON.parse(payload.body).gameCode;
+    console.log("id = " + sessionID);
+    if(JSON.parse(payload.body).result === "BAD_CODE") {
+        console.log("BAD_CODE > deactivate")
+        $("#invalid-code").show();
+        client.deactivate();
         return;
     }
-    connectSession(name);
-});
+    $('#join-input').fadeOut();
+    $('#game-lobby').fadeIn();
+    //else TODO handle reconnect (diff)
+    playerConnectToServer();
+    client.subscribe('/queue/game/' + gameCode + '/playerconnect', playerConnectToServer);
+}
+
+function playerConnectToServer() {
+    updatePlayerList().then();
+}
+
+async function updatePlayerList() {
+    $('#game-lobby-code').text('Join with code: ' + gameCode);
+    const playersResponse = await fetch('/queue/game/' + gameCode + '/getPlayers');
+    console.log(playersResponse);
+    let players = await playersResponse.json();
+    console.log(players);
+    $('#connected-players').empty();
+    players.sort().forEach(pl => {
+        console.log(pl);
+        let color = pl.color;
+        let name = pl.name;
+        let isBot = pl.type === "ROBOT";
+        let isLeader = pl.isLeader;
+        let isMe = pl.ID === sessionID;
+        if(isMe) {
+            amLeader = isLeader;
+        }
+        $('#connected-players').append("<div class='connected-player'>" + (isLeader ? "&#9733;" : "") + name + (isMe ? " (You)" : "") + (isBot ? " (BOT)" : "") + "</div>");
+    })
+    let numConnected = players.length;
+    if(amLeader) {
+        $("#bot-panel").show();
+        if(numConnected >= 3) {
+            $("#game-start-button").fadeIn();
+            $("#waiting-for-players").hide();
+        } else {
+            $("#game-start-button").hide();
+            $("#waiting-for-players").show();
+        }
+    } else {
+        $("#bot-panel").hide();
+    }
+    $('#num-connected').html('Connected (' + numConnected + '/' + (numConnected > 4 ? 6 : 4) + ')');
+}
