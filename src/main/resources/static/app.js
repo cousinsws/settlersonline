@@ -7,8 +7,24 @@ let sessionID;
 let gameCode;
 let myProfile;
 let amLeader;
+let players;
 
-// let playerList = [];
+let createdServer = false;
+
+//math consts
+const SQRT_3 = Math.sqrt(3);
+const HALF_SQRT_3 = SQRT_3 / 2;
+
+class Player {
+    constructor(id, name, color, isBot, isLeader, isMe) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.isBot = isBot;
+        this.isLeader = isLeader;
+        this.isMe = isMe;
+    }
+}
 
 function getCookie(cname) {
     let name = cname + "=";
@@ -90,8 +106,9 @@ $(document).ready(function() {
         connectToGameServer($("#name").val(), $("#joinCode").val().toUpperCase(), false);
     });
     $('#create-game').click(createAndConnectServer);
-    $('#bot-add').click(function() {addBot("ADD")})
-    $('#bot-remove').click(function() {addBot("REMOVE")})
+    $('#bot-add').click(function() {addBot("ADD")});
+    $('#bot-remove').click(function() {addBot("REMOVE")});
+    $('#game-start-button').click(startGame);
 });
 
 function addBot(botChangeType) {
@@ -99,6 +116,10 @@ function addBot(botChangeType) {
 }
 
 async function createAndConnectServer() {
+    if(createdServer) {
+        return;
+    }
+    createdServer = true;
     console.log("CLICKED CREATE");
     const codeResponse = await fetch("/queue/create-server");
     console.log(codeResponse);
@@ -151,6 +172,7 @@ function recieveServerJoin(payload) {
     //else TODO handle reconnect (diff)
     playerConnectToServer();
     client.subscribe('/queue/game/' + gameCode + '/playerconnect', playerConnectToServer);
+    client.subscribe('/queue/game/' + gameCode + '/gamestart', joinGame);
 }
 
 function playerConnectToServer() {
@@ -161,19 +183,23 @@ async function updatePlayerList() {
     $('#game-lobby-code').text('Join with code: ' + gameCode);
     const playersResponse = await fetch('/queue/game/' + gameCode + '/getPlayers');
     console.log(playersResponse);
-    let players = await playersResponse.json();
+    let playerList = await playersResponse.json();
     console.log(players);
     $('#connected-players').empty();
-    players.sort().forEach(pl => {
+    players = [];
+    playerList.sort().forEach(pl => {
         console.log(pl);
         let color = pl.color;
         let name = pl.name;
         let isBot = pl.type === "ROBOT";
         let isLeader = pl.isLeader;
-        let isMe = pl.ID === sessionID;
+        let playerID = pl.ID;
+        let isMe = playerID === sessionID;
         if(isMe) {
+            myProfile = pl;
             amLeader = isLeader;
         }
+        players.push(new Player(playerID, name, color, isBot, isLeader, isMe));
         $('#connected-players').append("<div class='connected-player'>" + (isLeader ? "&#9733;" : "") + name + (isMe ? " (You)" : "") + (isBot ? " (BOT)" : "") + "</div>");
     })
     let numConnected = players.length;
@@ -190,4 +216,52 @@ async function updatePlayerList() {
         $("#bot-panel").hide();
     }
     $('#num-connected').html('Connected (' + numConnected + '/' + (numConnected > 4 ? 6 : 4) + ')');
+}
+
+function startGame() {
+    $.post("/queue/game/" + gameCode + "/start");
+}
+
+function sendToGamePage() {
+    $('#lobby-page').hide();
+    $('#game-page').show();
+    $('body').css("background","#a66f3f");
+}
+
+async function joinGame(message) {
+    sendToGamePage();
+    const body = JSON.parse(message.body);
+    const scenario = body.scenario;
+    console.log("Recieved gamestart from " + body.gameCode + ":");
+    const tilemap = body.tileMap;
+    let tiles = $('#tiles');
+    const size = scenario === "THREE_FOUR" ? 10 : 8;
+    const sizeBuffer = 1.1;
+    tiles.empty();
+    for(const [coordinateString, tile] of Object.entries(tilemap)) {
+        const coordinate = parseCoordinate(coordinateString);
+        const q = coordinate.q;
+        const r = coordinate.r;
+        const x = (sizeBuffer * (q*size + r*size/2)) - size/2;
+        const y = sizeBuffer * (r*size*HALF_SQRT_3) - size;
+        tiles.append("<div class='tile' style=" +
+            "'width: " + size + "vh;height: " + 2*size + "vh; transform: translate(" + x + "vh, " + y + "vh) rotate(120deg) ;'" +
+            "><div class='tile-in1'><div class='tile-in2' style='background-image: url(" + toTileImage(tile.resource) + ")'></div></div></div>");
+    } //TODO need to set up buttons on each of the vertices and edges. should probably store tilemap locally
+}
+
+function toTileImage(resource) {
+    if(resource == null) {
+        return "\"images/tile/desert.png\"";
+    }
+    return "\"images/tile/" + resource.toLowerCase() + ".png\"";
+}
+
+function parseCoordinate(coordinateString) {
+    const parts = /^\((.+),(.+)\)$/.exec(coordinateString);
+    let matches = parts.slice(1).map((p) => parseInt(p, 10));
+    return {
+        q: matches[0],
+        r: matches[1]
+    };
 }

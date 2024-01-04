@@ -27,10 +27,12 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.jetbrains:annotations:23.0.0'
+    implementation 'org.json:json:20231013'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation("org.webjars:webjars-locator-core")
     implementation('org.webjars:sockjs-client:1.5.1')
     implementation('org.webjars:stomp-websocket:2.3.4')
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.named('test') {

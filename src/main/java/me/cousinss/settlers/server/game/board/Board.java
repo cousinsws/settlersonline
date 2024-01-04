@@ -29,6 +29,10 @@ public class Board {
         this.ports = new ArrayList<>();
     }
 
+    public Map<Coordinate, Tile> getTileMap() {
+        return this.tileMap;
+    }
+
     public Tile getTile(Coordinate c) {
         return this.tileMap.get(c);
     }

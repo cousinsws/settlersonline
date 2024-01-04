@@ -33,6 +33,10 @@ public class Game {
         this.dice = initDice(settings);
     }
 
+    public Board getBoard() {
+        return this.board;
+    }
+
     private Board initDefaultBoard(GameSettings settings) {
         Board b = new Board();
         { //robber

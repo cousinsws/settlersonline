@@ -3,6 +3,7 @@ package me.cousinss.settlers.server;
 import me.cousinss.settlers.client.Packet;
 import me.cousinss.settlers.server.game.player.Player;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -86,12 +87,34 @@ public class ServerController {
         return ResponseEntity.ok(List.of(changed));
     }
 
+    @PostMapping("/queue/game/{gameCode}/start")
+    public ResponseEntity<Void> startGame(
+            @PathVariable String gameCode
+    ) {
+        if(!servers.containsKey(gameCode)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        GameServer server = servers.get(gameCode);
+        server.startGame();
+        broadcastGameStart(gameCode, server);
+        return new ResponseEntity<>(HttpStatus.RESET_CONTENT);
+    }
+
+    private void broadcastGameStart(String gameCode, GameServer server) {
+        Message.GameStart msg = new Message.GameStart(
+                gameCode,
+                server.getGame().getBoard().getTileMap(),
+                server.getConnectedUsers().size() < 5 ? Message.GameScenario.THREE_FOUR : Message.GameScenario.FIVE_SIX
+        );
+        template.convertAndSend("/queue/game/" + gameCode + "/gamestart", msg);
+    }
+
     @GetMapping("/queue/create-server")
     public ResponseEntity<List<String>> createGameServer() {
         String code;
         while(servers.containsKey(code = GameServer.generateGameCode())) {}
         servers.put(code, new GameServer());
-        System.out.println("Creating server with code " + code);
+        System.out.println("SCONT > Creating server with code " + code);
         return ResponseEntity.ok(List.of(code));
     }
 
@@ -105,5 +128,6 @@ public class ServerController {
      */
     public void freeServer(String gameCode) {
         this.servers.remove(gameCode);
+        System.out.println("SCONTR > Freeing server with code " + gameCode + ". " + this.servers.size() + " servers remain operational.");
     }
 }

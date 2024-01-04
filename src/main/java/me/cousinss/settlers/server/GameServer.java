@@ -65,6 +65,10 @@ public class GameServer {
         return game;
     }
 
+    public Game getGame() {
+        return this.game;
+    }
+
     public List<Map.Entry<String, Player.Profile>> getBotProfiles() {
         int i = 0;
         String id;
@@ -149,19 +153,19 @@ public class GameServer {
     }
 
     private Player.Color cleanColor(Player.Color color) {
-        if(!isUserWithColor(color)) {
+        if(isColorFree(color)) {
             return color;
         }
         for(Player.Color c : Player.Color.values()) {
-            if(!isUserWithColor(c)) {
+            if(isColorFree(c)) {
                 return c;
             }
         }
         return Player.Color.BLACK;
     }
 
-    private boolean isUserWithColor(Player.Color color) {
-        return users.values().stream().map(Player.Profile::color).anyMatch(s -> s.equals(color));
+    private boolean isColorFree(Player.Color color) {
+        return users.values().stream().map(Player.Profile::color).noneMatch(s -> s.equals(color));
     }
 
     /**
@@ -189,9 +193,7 @@ public class GameServer {
         if(users.size() == 6) { //don't plan on making Catan any larger than this
             return false;
         }
-        int numBots = numBots();
-        int myNum = numBots;
-        String id = BOT_ID_PREFIX + myNum;
+        String id = BOT_ID_PREFIX + numBots();
         this.users.put(id,
                 new Player.Profile(
                         id,
