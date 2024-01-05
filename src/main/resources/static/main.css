@@ -1,10 +1,17 @@
 /*LOBBY*/
 
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body {
     /*edit*/
     background: linear-gradient(#c31600, #e14000) fixed;
     font-family: "DM Serif Display", system-ui;
     color: black;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .title-banner {
@@ -156,7 +163,6 @@ input[type=text] {
     overflow: hidden;
     visibility: hidden;
     transform: rotate(120deg); /* MUST RETAIN AFTER TRANSLATION OVERWRITE */
-    cursor: pointer;
 }
 
 .tile-in1 {
@@ -173,4 +179,32 @@ input[type=text] {
     background-color: transparent;
     visibility: visible;
     transform: rotate(-60deg);
+}
+
+#vertices {
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.vertex {
+    padding: 5px;
+    position: absolute;
+    background-color: red;
+    border: 1px solid black;
+}
+
+#ports {
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.port {
+    padding: 5px;
+    position: absolute;
+    background-color: lightblue;
+    border: 1px solid darkblue;
 }

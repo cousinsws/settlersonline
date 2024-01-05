@@ -19,14 +19,14 @@ public class Board {
     private final Map<Vertex, Colony> colonyMap;
     private final Map<RoadEnds, Player> roadMap;
     private Coordinate robber;
-    private final List<Port> ports;
+    private final Map<Coordinate, Port> ports;
 
     public Board() {
         this.tileMap =  new HashMap<>();
         this.colonyMap = new HashMap<>();
         this.roadMap = new HashMap<>();
         this.robber = null; //error case - robber should be placed on the desert starting tile
-        this.ports = new ArrayList<>();
+        this.ports = new HashMap<>();
     }
 
     public Map<Coordinate, Tile> getTileMap() {
@@ -100,17 +100,17 @@ public class Board {
      * @param p the port
      * @return {@code true}
      */
-    public boolean addPort(Port p) {
-        this.ports.add(p);
+    public boolean addPort(Coordinate anchor, Port p) {
+        this.ports.put(anchor, p);
         return true;
     }
 
-    public List<Port> getPorts() {
+    public Map<Coordinate, Port> getPorts() {
         return this.ports;
     }
 
     public List<Port> getOwnedPorts(Player player) {
-        return this.getPorts().stream()
+        return this.getPorts().values().stream()
                 .filter(
                     port -> (port.getVertices().stream()
                                 .map(this::getColony)
@@ -278,6 +278,18 @@ public class Board {
     }
 
     /**
+     * Get all the land vertices on the board. Expensive call - should only call once.
+     * @return the set of all vertices adjacent to at least one tile in {@link #getTileMap}.
+     */
+    public Set<Vertex> getLandVertices() {
+        Set<Vertex> set = new HashSet<>();
+        for(Coordinate c : this.getTileMap().keySet()) {
+            set.addAll(c.getVerticesOn());
+        }
+        return set;
+    }
+
+    /**
      * Arranges the connected set of roads into an ordered path.
      * (For use in ordering cycles)
      * @param ends the connected roads
@@ -334,6 +346,29 @@ public class Board {
      */
     public boolean isLand(Vertex v) {
         return v.getTouchingTiles().stream().anyMatch(this.tileMap::containsKey);
+    }
+
+    /**
+     * An ordered list of tile Coordinates representing the cycle of tiles immediately adjacent to the edge of the island. Begins at an arbitrary point.
+     * @return the harbor ring cycle, beginning from East of centre.
+     */
+    public List<Coordinate> getHarborRing() {
+        int q = -1;
+        while(this.hasTile(new Coordinate(++q, 0))) {}
+        List<Coordinate> ring = new ArrayList<>();
+        Coordinate c = new Coordinate(q, 0); //east of centre start
+        HexVector v = new HexVector(-1, 1); //around the loop we go (clockwise)!
+        Coordinate start = c.add(Coordinate.ORIGIN); //copy (save)
+        ring.add(start);
+        c = c.add(v);
+        while(!c.equals(start)) {
+            ring.add(c);
+            if(!this.hasTile(c.add(v.turn()))) {
+                v = v.turn();
+            }
+            c = c.add(v);
+        }
+        return ring;
     }
 
     //Visual tests

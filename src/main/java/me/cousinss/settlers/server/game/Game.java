@@ -1,15 +1,17 @@
 package me.cousinss.settlers.server.game;
 
-import me.cousinss.settlers.server.game.board.Board;
-import me.cousinss.settlers.server.game.board.Coordinate;
-import me.cousinss.settlers.server.game.board.Tile;
+import me.cousinss.settlers.server.game.board.*;
 import me.cousinss.settlers.server.game.card.*;
 import me.cousinss.settlers.server.game.die.Dice;
 import me.cousinss.settlers.server.game.die.FairDie;
 import me.cousinss.settlers.server.game.die.NormalDie;
 import me.cousinss.settlers.server.game.player.Player;
+import org.springframework.lang.NonNull;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Game {
 
@@ -37,7 +39,15 @@ public class Game {
         return this.board;
     }
 
-    private Board initDefaultBoard(GameSettings settings) {
+    public List<Player> getPlayers() {
+        return this.playerList;
+    }
+
+    public Map<Card, Deck> getResourceDecks() {
+        return this.resourceDecks;
+    }
+
+    private static Board initDefaultBoard(GameSettings settings) {
         Board b = new Board();
         { //robber
             Coordinate c;
@@ -64,25 +74,58 @@ public class Game {
                 b.addTile(c, t);
             }
         }
+        //ports (harbors.. smh)
+        //TODO this is not correct for GameScenario.FIVE_SIX (i think it will break)
+        List<Coordinate> seaTiles = b.getHarborRing();
+        List<BiFunction<Vertex, Vertex, Port>> funs = new ArrayList<>();
+        for(int i = 0; i < 4; i++) {
+            funs.add(Port::wildcard);
+        }
+        for(Card resource : CardType.RESOURCE.getCardSet()) {
+            funs.add((v1, v2) -> Port.ofResource(resource, v1, v2));
+        }
+        Collections.shuffle(funs);
+        for(int i = 0; i < seaTiles.size(); i+=2) {
+            Coordinate anchor = seaTiles.get(i);
+            addPort(anchor, funs.get(i/2), b);
+        }
         return b;
     }
 
-    private List<Player> initPlayers(List<Player> players, GameSettings settings) {
+    private static void addPort(Coordinate anchor, BiFunction<Vertex, Vertex, Port> fun, Board b) {
+        Set<Coordinate> options = anchor.getNeighbors().stream().filter(b::hasTile).collect(Collectors.toSet());
+        List<Vertex> shared = anchor.getSharedVertices(randomFrom(options)).stream().toList();
+        Port port = fun.apply(shared.get(0), shared.get(1));
+        b.addPort(anchor, port);
+    }
+
+    //this is slow but who cares! it's run like 6 times
+    @NonNull
+    private static <T> T randomFrom(Collection<T> coll) {
+        if(coll.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        List<T> toShuffle = coll.stream().collect(Collectors.toCollection((Supplier<List<T>>) ArrayList::new));
+        Collections.shuffle(toShuffle);
+        return toShuffle.get(0);
+    }
+
+    private static List<Player> initPlayers(List<Player> players, GameSettings settings) {
         if(settings.getValue(GameSettings.Setting.PLAYER_ORDER) == GameSettings.RANDOM_PLAYER) {
             Collections.shuffle(players);
         }
         return players;
     }
 
-    private Map<Card, Deck> initResourceDecks(GameSettings settings) {
-        Map<Card, Deck> deckMap = new HashMap<>();
+    private static Map<Card, Deck> initResourceDecks(GameSettings settings) {
+        Map<Card, Deck> deckMap = new EnumMap<>(Card.class);
         for(Card resource : CardType.RESOURCE.getCardSet()) {
             deckMap.put(resource, new HomogeneousDeck(19, resource));
         }
         return deckMap;
     }
 
-    private Deck initDevelopmentDeck(GameSettings settings) {
+    private static Deck initDevelopmentDeck(GameSettings settings) {
         Map<Card, Integer> deckMap = new HashMap<>();
         deckMap.put(Card.KNIGHT, 14);
         deckMap.put(Card.MONOPOLY, 2);
@@ -92,7 +135,7 @@ public class Game {
         return new HeterogeneousDeck(deckMap);
     }
 
-    private Dice initDice(GameSettings settings) {
+    private static Dice initDice(GameSettings settings) {
         return new Dice(
                 settings.getValue(GameSettings.Setting.BALANCE_DICE) == GameSettings.BOOLEAN_ON ?
                         (NormalDie::new) : (FairDie::new),

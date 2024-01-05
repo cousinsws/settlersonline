@@ -14,6 +14,8 @@ let createdServer = false;
 //math consts
 const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
+const ONE_THIRD = 1/3;
+const TWO_THIRD = 2/3;
 
 class Player {
     constructor(id, name, color, isBot, isLeader, isMe) {
@@ -25,6 +27,15 @@ class Player {
         this.isMe = isMe;
     }
 }
+
+class Vertex {
+    constructor(tileCoordinate, direction) {
+        this.tileCoordinate = tileCoordinate;
+        this.direction = direction;
+    }
+}
+
+let vertexMap = new Map();
 
 function getCookie(cname) {
     let name = cname + "=";
@@ -232,22 +243,66 @@ async function joinGame(message) {
     sendToGamePage();
     const body = JSON.parse(message.body);
     const scenario = body.scenario;
-    console.log("Recieved gamestart from " + body.gameCode + ":");
+    console.log("Recieved gamestart from " + body.gameCode + ":" + message.body);
     const tilemap = body.tileMap;
     let tiles = $('#tiles');
-    const size = scenario === "THREE_FOUR" ? 10 : 8;
+    const size = scenario === "THREE_FOUR" ? 14 : 10;
     const sizeBuffer = 1.1;
     tiles.empty();
-    for(const [coordinateString, tile] of Object.entries(tilemap)) {
-        const coordinate = parseCoordinate(coordinateString);
-        const q = coordinate.q;
-        const r = coordinate.r;
-        const x = (sizeBuffer * (q*size + r*size/2)) - size/2;
-        const y = sizeBuffer * (r*size*HALF_SQRT_3) - size;
+    tilemap.forEach(pair => {
+        const coordinate = pair.coordinate;
+        const tile = pair.tile;
+        const [x, y] = toScreenCoordinates(coordinate, size, sizeBuffer);
         tiles.append("<div class='tile' style=" +
-            "'width: " + size + "vh;height: " + 2*size + "vh; transform: translate(" + x + "vh, " + y + "vh) rotate(120deg) ;'" +
+            "'width: " + size + "vh;height: " + 2*size + "vh; transform: translate(" + (x) + "vh, " + (y ) + "vh) rotate(120deg) ;'" +
             "><div class='tile-in1'><div class='tile-in2' style='background-image: url(" + toTileImage(tile.resource) + ")'></div></div></div>");
-    } //TODO need to set up buttons on each of the vertices and edges. should probably store tilemap locally
+    });
+    let vertices = $("#vertices");
+    vertices.empty();
+    body.landVertices.forEach(vertex => {
+        const [x, y] = toScreenCoordinates(getVertexCoordinate(vertex.tileCoordinate, vertex.direction), size, sizeBuffer);
+        let vDiv = $("<div class='vertex' id='lastV' style='transform: translate(" + (x - sizeBuffer) + "vh, " + y + "vh)'></div>");
+        vDiv.click(function() {onVertexClick(vertex);});
+        vDiv.appendTo($('#vertices'));
+        const v = $("#lastV");
+        vertexMap.set(JSON.stringify(vertex), v[0]);
+        v.removeAttr('id');
+        //TODO draw face values
+    });
+    body.ports.forEach(coordinateport => {
+        const anchor = coordinateport.anchor;
+        anchor.r++;
+        const port = coordinateport.port;
+        const resource = port.resource;
+        const portVertices = port.vertices;
+
+        const [x, y] = toScreenCoordinates(anchor, size, sizeBuffer);
+        let portDiv = $("<div class='port' style='background-image: url(" + toTileImage(resource) + "); transform: translate(" + x + "vh, " + y + "vh)'></div>");
+        portDiv.appendTo($('#ports'));
+
+        portVertices.forEach(vertex => { // (there are 2)
+            vertexMap.get(JSON.stringify(vertex)).style.backgroundColor = "lightblue";
+        });
+        //TODO draw gangways
+    });
+}
+
+//returns in coordinate object form
+function getVertexCoordinate(coordinate, direction) {
+    if(direction === "NORTH") {
+        return {q:(coordinate.q + ONE_THIRD), r:(coordinate.r - TWO_THIRD + 1)};
+    }
+    return {q:(coordinate.q - ONE_THIRD), r:(coordinate.r - ONE_THIRD + 1)};
+}
+
+function onVertexClick(vertex) {
+    console.log("Vertex @ " + JSON.stringify(vertex.tileCoordinate) + " to " + vertex.direction + " clicked!"); //TODO
+}
+
+function toScreenCoordinates(coordinate, size, sizeBuffer) {
+    const q = coordinate.q;
+    const r = coordinate.r;
+    return [(sizeBuffer * (q*size + r*size/2)) - size/2, sizeBuffer * (r*size*HALF_SQRT_3) - size];
 }
 
 function toTileImage(resource) {
@@ -255,13 +310,4 @@ function toTileImage(resource) {
         return "\"images/tile/desert.png\"";
     }
     return "\"images/tile/" + resource.toLowerCase() + ".png\"";
-}
-
-function parseCoordinate(coordinateString) {
-    const parts = /^\((.+),(.+)\)$/.exec(coordinateString);
-    let matches = parts.slice(1).map((p) => parseInt(p, 10));
-    return {
-        q: matches[0],
-        r: matches[1]
-    };
 }

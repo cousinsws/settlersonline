@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ServerController {
@@ -103,8 +104,12 @@ public class ServerController {
     private void broadcastGameStart(String gameCode, GameServer server) {
         Message.GameStart msg = new Message.GameStart(
                 gameCode,
-                server.getGame().getBoard().getTileMap(),
-                server.getConnectedUsers().size() < 5 ? Message.GameScenario.THREE_FOUR : Message.GameScenario.FIVE_SIX
+                server.getGame().getBoard().getTileMap().entrySet().stream().map(e -> new Message.CoordinateTile(e.getKey(), e.getValue())).collect(Collectors.toSet()),
+                server.getConnectedUsers().size() < 5 ? Message.GameScenario.THREE_FOUR : Message.GameScenario.FIVE_SIX,
+                server.getGame().getPlayers().stream().map(Player::getProfile).toList(),
+                server.getGame().getBoard().getLandVertices(),
+                server.getGame().getResourceDecks(),
+                server.getGame().getBoard().getPorts().entrySet().stream().map(e -> new Message.AnchorPort(e.getKey(), e.getValue())).collect(Collectors.toSet())
         );
         template.convertAndSend("/queue/game/" + gameCode + "/gamestart", msg);
     }

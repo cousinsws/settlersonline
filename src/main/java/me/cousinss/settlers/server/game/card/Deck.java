@@ -41,5 +41,4 @@ public abstract class Deck implements Collection<Card> {
     public boolean isEmpty() {
         return this.size() == 0;
     }
-
 }

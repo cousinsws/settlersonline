@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A deck of cards of all the same {@link Card} - likely face up; i.e. the Wood resource deck.
@@ -41,13 +42,18 @@ public class HomogeneousDeck extends Deck {
     @Override
     public Iterator<Card> iterator() {
         return new Iterator<>() {
+            private int curSize = size();
             @Override
             public boolean hasNext() {
-                return !isEmpty();
+                return curSize != 0;
             }
 
             @Override
             public Card next() {
+                if(curSize <= 0) {
+                    throw new NoSuchElementException();
+                }
+                curSize--;
                 return card;
             }
         };

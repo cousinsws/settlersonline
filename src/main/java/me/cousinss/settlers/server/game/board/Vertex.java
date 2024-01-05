@@ -1,11 +1,17 @@
 package me.cousinss.settlers.server.game.board;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Vertex {
     //this class is so full of Java 13+ features its incredible
 
+    @JsonIgnore
     private static final Map<VPair, Vertex> vertexMap = new HashMap<>();
 
     /**
@@ -17,8 +23,11 @@ public class Vertex {
 
     private final Coordinate tileCoordinate;
     private final Direction direction;
+    @JsonIgnore
     private final Set<Coordinate> adjacentTiles;
+    @JsonIgnore
     private final Set<VPair> adjacentVPairs;
+    @JsonIgnore
     private Set<Vertex> adjacentVertices = null;
 
     public static Vertex of(Coordinate tileCoordinate, Direction direction) {
@@ -70,6 +79,7 @@ public class Vertex {
         return this.adjacentTiles.contains(c);
     }
 
+    @JsonIgnore
     public Set<Coordinate> getTouchingTiles() {
         return new HashSet<>(this.adjacentTiles);
     }
@@ -91,6 +101,14 @@ public class Vertex {
             return false;
         }
         return this.direction == v.direction && this.tileCoordinate.equals(v.tileCoordinate);
+    }
+
+    public Coordinate getTileCoordinate() {
+        return this.tileCoordinate;
+    }
+
+    public Direction getDirection() {
+        return this.direction;
     }
 
     @Override
