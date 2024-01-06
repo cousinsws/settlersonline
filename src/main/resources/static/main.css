@@ -152,6 +152,7 @@ input[type=text] {
 /*GAME*/
 
 #tiles {
+    /*set size in script*/
     position:absolute;
     left: 50%;
     top: 50%;
@@ -179,6 +180,23 @@ input[type=text] {
     background-color: transparent;
     visibility: visible;
     transform: rotate(-60deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.value-chip {
+    /*Set padding in script (must base on board size along with tiles*/
+    background-color: #d79129;
+    border: 1px solid black;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.value-icon {
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 #vertices {
@@ -189,10 +207,11 @@ input[type=text] {
 }
 
 .vertex {
-    padding: 5px;
+    padding: 1vh;
+    border-radius: 50%;
     position: absolute;
-    background-color: red;
-    border: 1px solid black;
+    background-color: rgba(105, 199, 58, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 #ports {
@@ -203,8 +222,14 @@ input[type=text] {
 }
 
 .port {
-    padding: 5px;
+    padding: 1vh;
     position: absolute;
     background-color: lightblue;
-    border: 1px solid darkblue;
+    border: 1px solid black;
+}
+
+.gangway {
+    position: absolute;
+    background-color: saddlebrown;
+    border: transparent;
 }

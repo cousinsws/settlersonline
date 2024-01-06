@@ -16,6 +16,7 @@ const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 const ONE_THIRD = 1/3;
 const TWO_THIRD = 2/3;
+const ROOT_THREE_OVER_THREE = SQRT_3/3;
 
 class Player {
     constructor(id, name, color, isBot, isLeader, isMe) {
@@ -29,9 +30,11 @@ class Player {
 }
 
 class Vertex {
-    constructor(tileCoordinate, direction) {
-        this.tileCoordinate = tileCoordinate;
-        this.direction = direction;
+    constructor(div, jquery, x, y) {
+        this.div = div;
+        this.jquery = jquery;
+        this.x = x;
+        this.y = y;
     }
 }
 
@@ -236,36 +239,41 @@ function startGame() {
 function sendToGamePage() {
     $('#lobby-page').hide();
     $('#game-page').show();
-    $('body').css("background","#a66f3f");
 }
 
 async function joinGame(message) {
     sendToGamePage();
+    $('body').css("background","#643010");
     const body = JSON.parse(message.body);
     const scenario = body.scenario;
     console.log("Recieved gamestart from " + body.gameCode + ":" + message.body);
     const tilemap = body.tileMap;
     let tiles = $('#tiles');
-    const size = scenario === "THREE_FOUR" ? 14 : 10;
-    const sizeBuffer = 1.1;
+    const size = scenario === "THREE_FOUR" ? 12 : 9;
+    const sizeBuffer = 1.03; //spent maybe three hours hassling with this multiplier only to decide it should probably just be 1
     tiles.empty();
     tilemap.forEach(pair => {
         const coordinate = pair.coordinate;
         const tile = pair.tile;
-        const [x, y] = toScreenCoordinates(coordinate, size, sizeBuffer);
+        const [x, y] = toScreenCoordinates(coordinate, size, sizeBuffer); //tbh i got no idea why you dont use translatecoords here but issok!
         tiles.append("<div class='tile' style=" +
-            "'width: " + size + "vh;height: " + 2*size + "vh; transform: translate(" + (x) + "vh, " + (y ) + "vh) rotate(120deg) ;'" +
-            "><div class='tile-in1'><div class='tile-in2' style='background-image: url(" + toTileImage(tile.resource) + ")'></div></div></div>");
+            "'width: " + size + "vh;height: " + 2*size + "vh; transform: translate(" + (x) + "vh, " + (y) + "vh) rotate(120deg) ;'" +
+            "><div class='tile-in1'><div class='tile-in2' style='background-image: url(" + toTileImage(tile.resource) + ")'>" +
+                (tile.resource != null ? ("<div class='value-chip' style='padding: " + (size/4.5) + "vh; box-sizing: border-box'>" +
+                    "<div class='value-icon'>" + tile.rollValue + "</div>" +
+                "</div>") : "") +
+            "</div></div></div>");
     });
     let vertices = $("#vertices");
     vertices.empty();
     body.landVertices.forEach(vertex => {
-        const [x, y] = toScreenCoordinates(getVertexCoordinate(vertex.tileCoordinate, vertex.direction), size, sizeBuffer);
-        let vDiv = $("<div class='vertex' id='lastV' style='transform: translate(" + (x - sizeBuffer) + "vh, " + y + "vh)'></div>");
+        const [sx, sy] = toScreenCoordinates(getVertexCoordinate(vertex.tileCoordinate, vertex.direction), size, sizeBuffer);
+        const [x, y] = toTranslateCoordinates(sx, sy, sizeBuffer, size);
+        let vDiv = $("<div class='vertex' id='lastV' style='transform: translate(" + x + "," + y + ")'></div>");
         vDiv.click(function() {onVertexClick(vertex);});
         vDiv.appendTo($('#vertices'));
         const v = $("#lastV");
-        vertexMap.set(JSON.stringify(vertex), v[0]);
+        vertexMap.set(JSON.stringify(vertex), new Vertex(v[0], v, sx, sy));
         v.removeAttr('id');
         //TODO draw face values
     });
@@ -275,15 +283,25 @@ async function joinGame(message) {
         const port = coordinateport.port;
         const resource = port.resource;
         const portVertices = port.vertices;
-
-        const [x, y] = toScreenCoordinates(anchor, size, sizeBuffer);
-        let portDiv = $("<div class='port' style='background-image: url(" + toTileImage(resource) + "); transform: translate(" + x + "vh, " + y + "vh)'></div>");
+        const [sx, sy] = toScreenCoordinates(anchor, size, sizeBuffer);
+        const [x, y] = toTranslateCoordinates(sx, sy, sizeBuffer, size);
+        let portDiv = $("<div class='port' style='background-image: url(" + toTileImage(resource) + "); transform: translate(" + x + "," + y + ")'></div>");
         portDiv.appendTo($('#ports'));
-
+        const gangwayLenFactor = 2/5;
+        const h = size * ROOT_THREE_OVER_THREE;
+        const w = 1;
         portVertices.forEach(vertex => { // (there are 2)
-            vertexMap.get(JSON.stringify(vertex)).style.backgroundColor = "lightblue";
+            //x, y, sx, and sy still in scope!
+            const vcoord = getVertexCoordinate(vertex.tileCoordinate, vertex.direction);
+            const [vsx, vsy] = toScreenCoordinates({q: (anchor.q + vcoord.q)/2, r: (anchor.r + vcoord.r)/2}, size, sizeBuffer); //mean position btwn anchor and portvertex
+            const [dsx, dsy] = [vsx - sx, vsy - sy];
+            const theta = Math.atan(dsx/dsy); //math!
+            // using our own version of toTranslateCoordinates here - need to move up, not down
+            const [x, y] = toTranslateCoordinates(vsx, vsy, sizeBuffer, size);
+            $("<div class='gangway' style='width: " + w + "vh; height: " + (h * gangwayLenFactor) + "vh; " +
+                "transform: translate(" + x + ", calc(" + y + ")) rotate(" + (-theta) + "rad)'></div>")
+                .appendTo($('#ports')); //dont need to save it im never touching these again
         });
-        //TODO draw gangways
     });
 }
 
@@ -303,6 +321,10 @@ function toScreenCoordinates(coordinate, size, sizeBuffer) {
     const q = coordinate.q;
     const r = coordinate.r;
     return [(sizeBuffer * (q*size + r*size/2)) - size/2, sizeBuffer * (r*size*HALF_SQRT_3) - size];
+}
+
+function toTranslateCoordinates(x, y, sizeBuffer, size) {
+    return ["calc(-50% + " + (x - (sizeBuffer-1)*size / 2) + "vh)", "calc(25% + " + (y - (sizeBuffer-1)*size) + "vh)"];
 }
 
 function toTileImage(resource) {
