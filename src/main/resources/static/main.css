@@ -188,8 +188,8 @@ input[type=text] {
 
 .value-chip {
     /*Set padding in script (must base on board size along with tiles*/
-    background-color: #d79129;
-    border: 1px solid black;
+    background-color: #efd2a5;
+    border: 1px solid #482f00;
     border-radius: 50%;
     text-align: center;
 }
@@ -197,6 +197,19 @@ input[type=text] {
 .value-icon {
     position: absolute;
     transform: translate(-50%, -50%);
+    cursor: default;
+}
+
+.valuable {
+    color: #ce0000;
+}
+
+.value-icon-number {
+    margin-bottom: 0;
+}
+
+.value-icon-dots {
+    margin-top: -50%;
 }
 
 #vertices {
