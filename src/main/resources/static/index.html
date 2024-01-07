@@ -17,7 +17,7 @@
 
     <!-- LOBBY PAGE -->
 
-    <div id="lobby-page" style="display: block">
+    <div id="lobby-page" style="display: none">
         <div style="display: flex;">
             <div class="title-banner">
                 Settlers of Catan Online
@@ -61,10 +61,147 @@
 
     <!-- GAME PAGE -->
 
-    <div id="game-page" style="display: none">
-        <div id="tiles">
-
+    <div id="game-page" style="display: block">
+        <div id="hud">
+            <div class="center-children-horiz">
+                <div id="decks-display" class="hud-section">
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-wood-icon"></div>
+                        <div class="deck-display-value" id="deck-wood-value">0</div>
+                    </div>
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-brick-icon"></div>
+                        <div class="deck-display-value" id="deck-brick-value">0</div>
+                    </div>
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-ore-icon"></div>
+                        <div class="deck-display-value" id="deck-ore-value">0</div>
+                    </div>
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-wheat-icon"></div>
+                        <div class="deck-display-value" id="deck-wheat-value">0</div>
+                    </div>
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-sheep-icon"></div>
+                        <div class="deck-display-value" id="deck-sheep-value">0</div>
+                    </div>
+                    <div class="deck-display">
+                        <div class="deck-display-icon" id="deck-development-icon"></div>
+                        <div class="deck-display-value" id="deck-development-value">0</div>
+                    </div>
+                </div>
+                <div id="action-buttons" class="hud-section">
+                    <div class="bbb-button" id="build-button"></div>
+                    <div class="bbb-button" id="buy-button"></div>
+                    <div class="bbb-button" id="trade-button"></div>
+                </div>
+            </div>
+            <div id="hero-display"></div>
+            <div id="player-banners"></div>
+            <div class="pos-children-bottom-right">
+                <div id="dice-section" class="hud-section">
+                    <div id="die-1">
+                        <div id="die-1-1" style="display: none" class="dice first-face">
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-1-2" style="display: none" class="dice second-face">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-1-3" style="display: flex" class="dice third-face">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-1-4" style="display: none" class="fourth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                        <div id="die-1-5" style="display: none" class="fifth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                        <div id="die-1-6" style="display: none" class="sixth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="die-2">
+                        <div id="die-2-1" style="display: none" class="dice first-face">
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-2-2" style="display: none" class="dice second-face">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-2-3" style="display: none" class="dice third-face">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <div id="die-2-4" style="display: none" class="fourth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                        <div id="die-2-5" style="display: flex" class="fifth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                        <div id="die-2-6" style="display: none" class="sixth-face dice">
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <div class="column">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <div id="tiles"></div>
         <div id="vertices"></div>
         <div id="ports"></div>
     </div>

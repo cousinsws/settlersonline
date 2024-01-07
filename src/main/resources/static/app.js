@@ -307,9 +307,7 @@ function getValueChip(tile, size) {
 }
 
 function getValueDots(rollValue) {
-    const perm = dicePermutations[rollValue];
-    const pad = (dicePermutations[6] - perm) / 2;
-    return "&nbsp;".repeat(pad) + "&centerdot;".repeat(perm) + "&nbsp;".repeat(pad); //&nbsp; is "non-breaking-space" so the padding doesnt get deleted by compiler (or smth idk)
+    return "&centerdot;".repeat(dicePermutations[rollValue]);
 }
 
 function drawVertices(landVertices, size) {

@@ -1,4 +1,8 @@
 /*LOBBY*/
+:root {
+    --dice-size: 5vh;
+}
+
 
 * {
     margin: 0;
@@ -192,6 +196,7 @@ input[type=text] {
     border: 1px solid #482f00;
     border-radius: 50%;
     text-align: center;
+    font-size: 2vh;
 }
 
 .value-icon {
@@ -205,11 +210,13 @@ input[type=text] {
 }
 
 .value-icon-number {
-    margin-bottom: 0;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 .value-icon-dots {
-    margin-top: -50%;
+    transform: translateX(-50%);
+    position: absolute;
 }
 
 #vertices {
@@ -245,4 +252,208 @@ input[type=text] {
     position: absolute;
     background-color: saddlebrown;
     border: transparent;
+}
+
+.hud {
+    height: 100%;
+    width: 100%;
+}
+
+/*skinny ass phone screens (move actions/decks to left)*/
+@media screen and (min-aspect-ratio: 16/7) { /* Normal screens */
+    .center-children-horiz {
+        position: absolute;
+        height: 100%;
+        left: 5px;
+    }
+}
+
+/*normal screens (stay in middle)*/
+@media screen and (max-aspect-ratio: 16/7) { /* Normal screens */
+    .center-children-horiz {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display:flex;
+        justify-content:center;
+    }
+}
+
+.pos-children-bottom-right {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display:flex;
+    justify-content:flex-end;
+    align-items:flex-end;
+}
+
+.hud-section {
+    background-color: saddlebrown;
+    border: 1px solid black;
+}
+
+#decks-display {
+    display: flex;
+    column-gap: 1vh;
+    white-space: nowrap;
+    position: absolute;
+    margin-top: 5px;
+    padding-inline: 1vh;
+    padding-block: 5px;
+    width: min-content;
+    height: min-content;
+    border-radius: 5px;
+}
+
+.deck-display {
+    padding-right: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    display: flex;
+    white-space: nowrap;
+    column-gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.deck-display-icon {
+    background-size: 100%;
+    background-position: 50%, 25%;
+    background-repeat: no-repeat;
+    padding: 2vh;
+}
+
+#deck-wood-icon {
+    background-image: url(images/resource/wood-icon.png);
+}
+#deck-brick-icon {
+    background-image: url(images/resource/brick-icon.png);
+}
+#deck-ore-icon {
+    background-image: url(images/resource/ore-icon.png);
+}
+#deck-sheep-icon {
+    background-image: url(images/resource/sheep-icon.png);
+}
+#deck-wheat-icon {
+    background-image: url(images/resource/wheat-icon.png);
+}
+#deck-development-icon {
+    background-image: url(images/resource/development-icon.png);
+}
+
+#action-buttons {
+    display: flex;
+    white-space: nowrap;
+    bottom: 0;
+    position: absolute;
+    margin-bottom: 5px;
+    padding-inline: 15px;
+    padding-block: 5px;
+    width: min-content;
+    border-radius: 5px;
+    column-gap: 20px;
+}
+
+#dice-section {
+    display: flex;
+    column-gap: 10px;
+    white-space: nowrap;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding-block: 5px;
+    padding-inline: 10px;
+    border-radius: 5px;
+}
+
+/*thanks to https://betterprogramming.pub/creating-dice-in-flexbox-in-css-a02a5d85e516*/
+.first-face {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.dice {
+    padding: 0.5vh;
+    background-color: white;
+    width: var(--dice-size);
+    height: var(--dice-size);
+    border-radius: 7.5%;
+    border: 1px solid black;
+}
+.dot{
+    display: block;
+    width: calc(var(--dice-size)/4.5);
+    height: calc(var(--dice-size)/4.5);
+    border-radius: 50%;
+    background-color:black;
+}
+
+.second-face{
+    display: flex ;
+    justify-content: space-between;
+}
+
+.second-face .dot:nth-of-type(2) {
+    align-self: flex-end;
+}
+
+.third-face {
+    display: flex;
+    justify-content: space-between;
+}
+
+.third-face .dot:nth-of-type(1) {
+    align-self :flex-end;
+}
+
+.third-face .dot:nth-of-type(2) {
+    align-self :center;
+}
+
+.fourth-face , .sixth-face, .fifth-face{
+    display: flex;
+    justify-content: space-between;
+}
+
+.fourth-face .column , .sixth-face .column, .fifth-face .column{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fifth-face .column:nth-of-type(2) {
+    justify-content: center;
+}
+
+.bbb-button {
+    width: 7vh;
+    height: 7vh;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+
+#build-button {
+    background-color: sandybrown;
+    background-image: url(images/build.png);
+    background-size: 75%;
+    background-position: 50%, 25%;
+    background-repeat: no-repeat;
+}
+
+#buy-button {
+    background-color: sandybrown;
+    background-image: url(images/devcards.png);
+    background-size: 75%;
+    background-position: 60%, 25%;
+    background-repeat: no-repeat;
+}
+
+#trade-button {
+    background-color: sandybrown;
+    background-image: url(images/trade.png);
+    background-size: 75%;
+    background-position: 50%, 25%;
+    background-repeat: no-repeat;
 }
