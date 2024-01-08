@@ -1,8 +1,9 @@
 /*LOBBY*/
 :root {
     --dice-size: 5vh;
+    --banner-cut-width: 10px;
+    --banner-height: 4vh;
 }
-
 
 * {
     margin: 0;
@@ -154,6 +155,16 @@ input[type=text] {
 }
 
 /*GAME*/
+
+/*#game-page {*/
+/*    height: 100%;*/
+/*    width: 100%;*/
+/*}*/
+
+/*#hud {*/
+/*    height: 100%;*/
+/*    width: 100%;*/
+/*}*/
 
 #tiles {
     /*set size in script*/
@@ -324,23 +335,26 @@ input[type=text] {
     padding: 2vh;
 }
 
-#deck-wood-icon {
+.deck-wood-icon {
     background-image: url(images/resource/wood-icon.png);
 }
-#deck-brick-icon {
+.deck-brick-icon {
     background-image: url(images/resource/brick-icon.png);
 }
-#deck-ore-icon {
+.deck-ore-icon {
     background-image: url(images/resource/ore-icon.png);
 }
-#deck-sheep-icon {
+.deck-sheep-icon {
     background-image: url(images/resource/sheep-icon.png);
 }
-#deck-wheat-icon {
+.deck-wheat-icon {
     background-image: url(images/resource/wheat-icon.png);
 }
-#deck-development-icon {
+.deck-development-icon {
     background-image: url(images/resource/development-icon.png);
+}
+.deck-card-icon {
+    background-image: url(images/cardicon.png);
 }
 
 #action-buttons {
@@ -456,4 +470,191 @@ input[type=text] {
     background-size: 75%;
     background-position: 50%, 25%;
     background-repeat: no-repeat;
+}
+
+#hero-display {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display:flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#hero-section {
+    position: absolute;
+    margin-left: 5px;
+    margin-bottom: 5vh;
+    border-radius: 5px;
+/*    set background color for player in script*/
+}
+
+.name-display {
+    font-size: 2.5vh;
+    display: flex;
+    white-space: nowrap;
+    column-gap: 5px;
+    margin-inline: auto;
+    padding-inline: 2vw;
+    margin-block: 1vh;
+    text-align: center;
+    justify-content: center;
+}
+
+.name-display.enemy {
+    margin-block: 0;
+}
+
+.victory-point-star {
+    padding-block: 5px;
+    padding-inline: 10px;
+    background-image: url(images/victory-star.png);
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+.name {
+    margin-block: auto;
+}
+
+.hand-display-item {
+    display: inline-flex;
+    white-space: nowrap;
+    column-gap: 5px;
+    justify-content: center;
+    align-items: center;
+    width: min-content;
+    max-width: min-content;
+    font-size: 1vw;
+}
+
+#hand-display {
+    padding: 5px;
+    padding-inline: 1.5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min-content;
+    max-width: min-content;
+    right: 0;
+    margin-block: auto;
+    row-gap: 5px;
+}
+
+#hero-section-divider {
+    min-height: max-content;
+    border-right: 1px solid black;
+}
+
+#hero-info-readout {
+    margin: auto;
+    font-size: 3vh;
+    font-weight: lighter;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+/*use filter: brightness(50%) to gray out*/
+.info-la-icon {
+    background-image: url(images/largestarmy.png);
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 3vh;
+}
+.info-la-icon.enemy {
+    padding: 2vh;
+}
+.info-lr-icon {
+    background-image: url(images/longestroad.png);
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 3vh;
+}
+.info-lr-icon.enemy {
+    padding: 2vh;
+}
+
+.enemy-info-card-icon {
+    background-image: url(images/cardicon.png);
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 2vh;
+}
+.enemy-info-dev-icon {
+    background-image: url(images/devcards.png);
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 2vh;
+}
+
+#hero-info-card-vp {
+    font-size: 2vh;
+}
+
+#hero-info-mission-vp {
+    font-size: 2vh;
+}
+
+.horiz-info {
+    display: flex;
+    justify-content: center;
+    min-height: min-content;
+    text-align: center;
+    align-items: center;
+}
+
+#hero-info-la-value {
+    padding-right: 5px;
+}
+#hero-info-lr-value {
+    padding-right: 5px;
+}
+
+.info-vp-icon {
+    padding-block: 0.5vh;
+    background-image: url(images/victory-star.png);
+    background-size: 50%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.card-icon {
+    /*lil too big by default*/
+    background-size: 80%;
+}
+
+#server-info {
+    position: absolute;
+    margin-right: 5px;
+    right: 0;
+    text-align: right;
+}
+
+#player-banners {
+    justify-content: space-evenly;
+    height: 50%;
+    transform: translateY(50%);
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    right: 0;
+}
+
+.polygon-banner{
+    column-gap: 3px;
+    padding-block: 0.5vh;
+    padding-left: 0.5vw;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, var(--banner-cut-width) 50%, 0% 0%);
 }

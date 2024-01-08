@@ -17,7 +17,7 @@
 
     <!-- LOBBY PAGE -->
 
-    <div id="lobby-page" style="display: none">
+    <div id="lobby-page" style="display: block">
         <div style="display: flex;">
             <div class="title-banner">
                 Settlers of Catan Online
@@ -61,32 +61,36 @@
 
     <!-- GAME PAGE -->
 
-    <div id="game-page" style="display: block">
+    <div id="game-page" style="display: none">
         <div id="hud">
+            <div id="server-info">
+                Connected<br/>
+                Game ASDE
+            </div>
             <div class="center-children-horiz">
                 <div id="decks-display" class="hud-section">
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-wood-icon"></div>
+                        <div class="deck-display-icon deck-wood-icon"></div>
                         <div class="deck-display-value" id="deck-wood-value">0</div>
                     </div>
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-brick-icon"></div>
+                        <div class="deck-display-icon deck-brick-icon"></div>
                         <div class="deck-display-value" id="deck-brick-value">0</div>
                     </div>
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-ore-icon"></div>
+                        <div class="deck-display-icon deck-ore-icon"></div>
                         <div class="deck-display-value" id="deck-ore-value">0</div>
                     </div>
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-wheat-icon"></div>
+                        <div class="deck-display-icon deck-wheat-icon"></div>
                         <div class="deck-display-value" id="deck-wheat-value">0</div>
                     </div>
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-sheep-icon"></div>
+                        <div class="deck-display-icon deck-sheep-icon"></div>
                         <div class="deck-display-value" id="deck-sheep-value">0</div>
                     </div>
                     <div class="deck-display">
-                        <div class="deck-display-icon" id="deck-development-icon"></div>
+                        <div class="deck-display-icon deck-development-icon card-icon"></div>
                         <div class="deck-display-value" id="deck-development-value">0</div>
                     </div>
                 </div>
@@ -96,8 +100,65 @@
                     <div class="bbb-button" id="trade-button"></div>
                 </div>
             </div>
-            <div id="hero-display"></div>
-            <div id="player-banners"></div>
+            <div id="hero-display">
+                <div id="dev-card-hand"></div>
+                <div id="hero-section" class="hud-section">
+                    <div id="hero-name-display" class="name-display">
+                        <div class="victory-point-star">0</div>
+                        <div id="hero-name" class="name">Candamir</div>
+                    </div>
+                    <div style="display: flex; border-top: 1px solid black">
+                        <div id="hero-info-readout">
+                            <div class="horiz-info">
+                                <div id="hero-lr-icon" class="info-lr-icon"></div>
+                                <div id="hero-info-lr-value">0</div>
+                            </div>
+                            <div class="horiz-info" style="margin-bottom: 1vh">
+                                <div id="hero-la-icon" class="info-la-icon"></div>
+                                <div id="hero-info-la-value">0</div>
+                            </div>
+                            <div class="info-vp-icon">0</div>
+                            <div id="hero-info-card-vp">
+                                from VP Cards
+                            </div>
+                            <div class="info-vp-icon">0</div>
+                            <div id="hero-info-mission-vp">
+                                from Missions
+                            </div>
+                        </div>
+                        <div id="hero-section-divider"></div>
+                        <div id="hand-display">
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-wood-icon"></div>
+                                <div class="deck-display-value" id="hand-wood-value">0</div>
+                            </div>
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-brick-icon"></div>
+                                <div class="deck-display-value" id="hand-brick-value">0</div>
+                            </div>
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-ore-icon"></div>
+                                <div class="deck-display-value" id="hand-ore-value">0</div>
+                            </div>
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-wheat-icon"></div>
+                                <div class="deck-display-value" id="hand-wheat-value">0</div>
+                            </div>
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-sheep-icon"></div>
+                                <div class="deck-display-value" id="hand-sheep-value">0</div>
+                            </div>
+                            <div class="hand-display-item">
+                                <div class="deck-display-icon deck-card-icon card-icon"></div>
+                                <div class="deck-display-value" id="hand-total-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="player-banners">
+
+            </div>
             <div class="pos-children-bottom-right">
                 <div id="dice-section" class="hud-section">
                     <div id="die-1">
