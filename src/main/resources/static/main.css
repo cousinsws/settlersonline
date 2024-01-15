@@ -238,7 +238,7 @@ input[type=text] {
 }
 
 .vertex {
-    padding: 1vh;
+    padding: 1.5vh;
     border-radius: 50%;
     position: absolute;
     background-color: rgba(105, 199, 58, 0.5);
@@ -368,6 +368,19 @@ input[type=text] {
     width: min-content;
     border-radius: 5px;
     column-gap: 20px;
+}
+
+#broadcast-msg {
+    display: flex;
+    white-space: nowrap;
+    bottom: 0;
+    position: absolute;
+    margin-bottom: 5px;
+    padding-inline: 15px;
+    padding-block: 5px;
+    width: min-content;
+    border-radius: 5px;
+    text-align: center;
 }
 
 #dice-section {
@@ -618,9 +631,9 @@ input[type=text] {
 }
 
 .info-vp-icon {
-    padding-block: 0.5vh;
+    padding-block: 0.75vh;
     background-image: url(images/victory-star.png);
-    background-size: 50%;
+    background-size: 40%;
     background-position: center;
     background-repeat: no-repeat;
 }

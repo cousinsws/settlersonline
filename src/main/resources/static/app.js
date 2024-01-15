@@ -68,6 +68,15 @@ class Vertex {
 let vertexMap = new Map();
 let players = new Map();
 
+let vertexClickAction = function (vertex) {
+    console.log("UNINSTRUCTED VERTEX ACTION FOR " + JSON.stringify(vertex));
+}
+
+const placeSettlement = function(vertex) {
+    vertexMap.get(JSON.stringify(vertex)).jquery.css("background-color", getPieceColorStyle(myProfile.color));
+    vertexMap.get(JSON.stringify(vertex)).jquery.css("padding", "2vh");
+}
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -281,8 +290,9 @@ async function joinGame(message) {
     const size = scenario === "THREE_FOUR" ? 11 : 8;
     drawTiles(body.tileMap, size);
     drawVertices(body.landVertices, size);
-    drawPorts(body.ports, size);
+    // drawPorts(body.ports, size);
     drawPlayers(body.playerOrder);
+    prepareSetupPhase(body.playerOrder);
 }
 
 function drawPlayers(playerOrder) {
@@ -370,6 +380,24 @@ function drawHero() { //hero profile in myProfile global
     $("#hero-la-icon").css("filter", "brightness(25%)");
 }
 
+function prepareSetupPhase(playerList) {
+    $("#dice-section").hide();
+    $("#action-buttons").hide();
+    let broad = $("#broadcast-msg");
+    broad.show();
+    console.log(playerList[0].name);
+    console.log(myProfile.name);
+    vertexClickAction = placeSettlement;
+    if(playerList[0].name === myProfile.name) { //TODO ok technically this breaks if you name yourself one of the bot names imma hit this with a td bc we're not rly in production
+        broad.html("Place your first Settlement.");
+    } else {
+        broad.html(playerList[0].name + " is placing their first Settlement.");
+        for(const v of vertexMap.values()) {
+            v.jquery.hide();
+        }
+    }
+}
+
 function drawTiles(tilemap, size) {
     let tiles = $('#tiles');
     tiles.empty();
@@ -377,7 +405,7 @@ function drawTiles(tilemap, size) {
         const coordinate = pair.coordinate;
         const tile = pair.tile;
         const [x, y] = toScreenCoordinates(coordinate, size); //tbh i got no idea why you dont use translatecoords here but issok!
-        tiles.append(getTile(tile, x, y, size));
+        tiles.append(getTile(tile, x - size/2, y - size, size));
     });
 }
 
@@ -451,23 +479,24 @@ function drawPorts(ports, size) {
 //returns in coordinate object form
 function getVertexCoordinate(coordinate, direction) {
     if(direction === "NORTH") {
-        return {q:(coordinate.q + ONE_THIRD), r:(coordinate.r - TWO_THIRD + 1)};
+        return {q:(coordinate.q + ONE_THIRD), r:(coordinate.r - TWO_THIRD)};
     }
-    return {q:(coordinate.q - ONE_THIRD), r:(coordinate.r - ONE_THIRD + 1)};
+    return {q:(coordinate.q - ONE_THIRD), r:(coordinate.r - ONE_THIRD)};
 }
 
 function onVertexClick(vertex) {
     console.log("Vertex @ " + JSON.stringify(vertex.tileCoordinate) + " to " + vertex.direction + " clicked!"); //TODO
+    vertexClickAction(vertex);
 }
 
 function toScreenCoordinates(coordinate, size) {
     const q = coordinate.q;
     const r = coordinate.r;
-    return [(SIZE_BUFFER * (q*size + r*size/2)) - size/2, SIZE_BUFFER * (r*size*HALF_SQRT_3) - size];
+    return [(SIZE_BUFFER * (q*size + r*size/2)), SIZE_BUFFER * (r*size*HALF_SQRT_3)];
 }
 
 function toTranslateCoordinates(x, y, size) {
-    return ["calc(-50% + " + (x - (SIZE_BUFFER-1)*size / 2) + "vh)", "calc(25% + " + (y - (SIZE_BUFFER-1)*size) + "vh)"];
+    return ["calc(-50% + " + (x) + "vh)", "calc(-50% + " + (y) + "vh)"];
 }
 
 function toTileImage(resource) {

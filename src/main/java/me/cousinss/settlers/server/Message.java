@@ -28,7 +28,7 @@ public abstract class Message {
             Set<Vertex> landVertices,
             Map<Card, Deck> resourceDecks,
             Set<AnchorPort> ports
-    ) {}
+    ) {} //w/ implicit first-player build phase (no vertex blocking is needed; all are open on turn 1)
         public enum GameScenario {
             THREE_FOUR,
             FIVE_SIX
