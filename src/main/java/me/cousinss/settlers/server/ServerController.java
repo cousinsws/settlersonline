@@ -108,6 +108,7 @@ public class ServerController {
                 server.getConnectedUsers().size() < 5 ? Message.GameScenario.THREE_FOUR : Message.GameScenario.FIVE_SIX,
                 server.getGame().getPlayers().stream().map(Player::getProfile).toList(),
                 server.getGame().getBoard().getLandVertices(),
+                server.getGame().getBoard().getRoadSpaces(),
                 server.getGame().getResourceDecks(),
                 server.getGame().getBoard().getPorts().entrySet().stream().map(e -> new Message.AnchorPort(e.getKey(), e.getValue())).collect(Collectors.toSet())
         );

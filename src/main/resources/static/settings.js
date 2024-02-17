@@ -1,5 +1,5 @@
 //replace with read from application.properties?
-const ip = '192.168.1.107';
+const ip = 'localhost';
 const port = '8080';
 
 export function getClient() {

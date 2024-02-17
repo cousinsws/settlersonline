@@ -60,6 +60,14 @@ public class Board {
         return v.getAdjacentVertices().stream().map(to -> new RoadEnds(v, to)).filter(allRoads::contains).collect(Collectors.toSet());
     }
 
+    public Set<RoadEnds> getRoadSpaces() {
+        Set<Vertex> landVertices = this.getLandVertices();
+        return landVertices.stream()
+                .flatMap(
+                        v -> v.getAdjacentVertices().stream().filter(landVertices::contains).map(to -> new RoadEnds(v, to)))
+                .collect(Collectors.toSet());
+    }
+
     /**
      * Adds the tile to the board if the tile coordinate is empty.
      * @param c the coordinate

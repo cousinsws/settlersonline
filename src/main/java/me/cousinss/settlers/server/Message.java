@@ -1,9 +1,6 @@
 package me.cousinss.settlers.server;
 
-import me.cousinss.settlers.server.game.board.Coordinate;
-import me.cousinss.settlers.server.game.board.Port;
-import me.cousinss.settlers.server.game.board.Tile;
-import me.cousinss.settlers.server.game.board.Vertex;
+import me.cousinss.settlers.server.game.board.*;
 import me.cousinss.settlers.server.game.card.Card;
 import me.cousinss.settlers.server.game.card.Deck;
 import me.cousinss.settlers.server.game.player.Player;
@@ -26,6 +23,7 @@ public abstract class Message {
             GameScenario scenario,
             List<Player.Profile> playerOrder, //in order of play
             Set<Vertex> landVertices,
+            Set<RoadEnds> roadSpaces,
             Map<Card, Deck> resourceDecks,
             Set<AnchorPort> ports
     ) {} //w/ implicit first-player build phase (no vertex blocking is needed; all are open on turn 1)

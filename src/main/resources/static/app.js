@@ -289,8 +289,9 @@ async function joinGame(message) {
     console.log("Recieved gamestart from " + body.gameCode + ":" + message.body);
     const size = scenario === "THREE_FOUR" ? 11 : 8;
     drawTiles(body.tileMap, size);
+    drawRoads(body.roadSpaces, size);
     drawVertices(body.landVertices, size);
-    // drawPorts(body.ports, size);
+    drawPorts(body.ports, size);
     drawPlayers(body.playerOrder);
     prepareSetupPhase(body.playerOrder);
 }
@@ -380,6 +381,24 @@ function drawHero() { //hero profile in myProfile global
     $("#hero-la-icon").css("filter", "brightness(25%)");
 }
 
+function drawRoads(roadSpaces, size) {
+    let vertices = $("#roads");
+    vertices.empty();
+    roadSpaces.forEach(space => {
+        const [e1, e2] = space.ends;
+        const [e1x, e1y] = toScreenCoordinates(getVertexCoordinate(e1.tileCoordinate, e1.direction), size);
+        const [e2x, e2y] = toScreenCoordinates(getVertexCoordinate(e2.tileCoordinate, e2.direction), size);
+        const [cx, cy] = toTranslateCoordinates(sx, sy, size);
+        // let vDiv = $("<div class='vertex' id='lastV' style='transform: translate(" + x + "," + y + ")'></div>");
+        // vDiv.click(function() {onVertexClick(vertex);});
+        // vDiv.appendTo($('#vertices'));
+        // const v = $("#lastV");
+        // vertexMap.set(JSON.stringify(vertex), new Vertex(v[0], v, sx, sy));
+        // v.removeAttr('id');
+    //     do something
+    });
+}
+
 function prepareSetupPhase(playerList) {
     $("#dice-section").hide();
     $("#action-buttons").hide();
@@ -396,6 +415,10 @@ function prepareSetupPhase(playerList) {
             v.jquery.hide();
         }
     }
+}
+
+function setupPlaceSettlement(vertex) {
+
 }
 
 function drawTiles(tilemap, size) {
@@ -450,7 +473,6 @@ function drawVertices(landVertices, size) {
 function drawPorts(ports, size) {
     ports.forEach(coordinateport => {
         const anchor = coordinateport.anchor;
-        anchor.r++;
         const port = coordinateport.port;
         const resource = port.resource;
         const portVertices = port.vertices;

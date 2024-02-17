@@ -265,6 +265,12 @@ input[type=text] {
     border: transparent;
 }
 
+.road-space {
+    position: absolute;
+    background-color: rgba(192, 255, 177, 0.68);
+    border: white;
+}
+
 .hud {
     height: 100%;
     width: 100%;
