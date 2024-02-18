@@ -238,11 +238,31 @@ input[type=text] {
 }
 
 .vertex {
-    padding: 1.5vh;
+    padding: 2vh;
     border-radius: 50%;
     position: absolute;
     background-color: rgba(105, 199, 58, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.settlement {
+    position: absolute;
+    padding: 2vh;
+    /*background-image: url(images/structure/settlement.png);*/
+    background-size: contain;
+    transform: translate(-50%, -50%);
+    background-position: 50%, 25%;
+    background-repeat: no-repeat;
+}
+
+.city {
+    position: absolute;
+    padding: 2vh;
+    /*background-image: url(images/structure/city.png);*/
+    background-size: contain;
+    transform: translate(-50%, -50%);
+    background-position: 50%, 25%;
+    background-repeat: no-repeat;
 }
 
 #ports {

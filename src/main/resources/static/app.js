@@ -75,8 +75,15 @@ let vertexClickAction = function (vertex) {
 }
 
 const placeSettlementSelfRaw = function(vertex) {
-    vertexMap.get(JSON.stringify(vertex)).jquery.css("background-color", getPieceColorStyle(myProfile.color));
-    vertexMap.get(JSON.stringify(vertex)).jquery.css("padding", "2vh");
+    placeStructureColorRaw(vertex, "settlement", myProfile.color);
+    // v.css("background-color", getPieceColorStyle(myProfile.color));
+    // v.css("padding", "2vh");
+}
+
+function placeStructureColorRaw(vertex, structure, color) {
+    const v = vertexMap.get(JSON.stringify(vertex)).jquery;
+    const iurl = "images/structure/" + structure + "_" + (color.toLowerCase()) + ".png";
+    v.append("<div class='" + structure + "' style='background-image: url(" + iurl + "); width: 10px; height: 10px;'></div>")
 }
 
 function getCookie(cname) {
