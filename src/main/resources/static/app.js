@@ -22,6 +22,8 @@ const ROOT_THREE_OVER_THREE = SQRT_3/3;
 //visual parameters
 const SIZE_BUFFER = 1.03; //spent maybe three hours hassling with this multiplier only to decide it should probably just be 1 - keeping it for now?
 const VALUE_CHIP_SIZE = 2/9;
+const GANGWAY_LEN_FACTOR = 2/5;
+const ROAD_LEN_FACTOR = 3/5;
 const COLOR_RED = "rgba(175, 13, 13, 100%)";
 const COLOR_BLUE = "rgba(14, 71, 168, 100%)";
 const COLOR_WHITE = "rgb(238,206,176)";
@@ -72,7 +74,7 @@ let vertexClickAction = function (vertex) {
     console.log("UNINSTRUCTED VERTEX ACTION FOR " + JSON.stringify(vertex));
 }
 
-const placeSettlement = function(vertex) {
+const placeSettlementSelfRaw = function(vertex) {
     vertexMap.get(JSON.stringify(vertex)).jquery.css("background-color", getPieceColorStyle(myProfile.color));
     vertexMap.get(JSON.stringify(vertex)).jquery.css("padding", "2vh");
 }
@@ -287,6 +289,7 @@ async function joinGame(message) {
     const body = JSON.parse(message.body);
     const scenario = body.scenario;
     console.log("Recieved gamestart from " + body.gameCode + ":" + message.body);
+    $('#server-info').html("Connected<br/>Game " + body.gameCode);
     const size = scenario === "THREE_FOUR" ? 11 : 8;
     drawTiles(body.tileMap, size);
     drawRoads(body.roadSpaces, size);
@@ -384,14 +387,19 @@ function drawHero() { //hero profile in myProfile global
 function drawRoads(roadSpaces, size) {
     let vertices = $("#roads");
     vertices.empty();
+    const h = size * ROOT_THREE_OVER_THREE;
+    const w = 1;
     roadSpaces.forEach(space => {
+        console.log(JSON.stringify(space));
         const [e1, e2] = space.ends;
         const [e1x, e1y] = toScreenCoordinates(getVertexCoordinate(e1.tileCoordinate, e1.direction), size);
         const [e2x, e2y] = toScreenCoordinates(getVertexCoordinate(e2.tileCoordinate, e2.direction), size);
-        const [cx, cy] = toTranslateCoordinates(sx, sy, size);
-        // let vDiv = $("<div class='vertex' id='lastV' style='transform: translate(" + x + "," + y + ")'></div>");
-        // vDiv.click(function() {onVertexClick(vertex);});
-        // vDiv.appendTo($('#vertices'));
+        const ax = (e1x + e2x) / 2;
+        const ay = (e1y + e2y) / 2;
+        const theta = (e1y - e2y) === 0 ? 0 : Math.atan((e1x - e2x) / (e1y - e2y));
+        const [cx, cy] = toTranslateCoordinates(ax, ay, size);
+        let vDiv = $("<div class='road-space' style='width: " + w + "vh; height: " + (h * ROAD_LEN_FACTOR) + "vh; transform: translate(" + cx + "," + cy + ") rotate(" + (-theta) + "rad)'></div>");
+        vDiv.appendTo($('#roads'));
         // const v = $("#lastV");
         // vertexMap.set(JSON.stringify(vertex), new Vertex(v[0], v, sx, sy));
         // v.removeAttr('id');
@@ -406,8 +414,8 @@ function prepareSetupPhase(playerList) {
     broad.show();
     console.log(playerList[0].name);
     console.log(myProfile.name);
-    vertexClickAction = placeSettlement;
-    if(playerList[0].name === myProfile.name) { //TODO ok technically this breaks if you name yourself one of the bot names imma hit this with a td bc we're not rly in production
+    vertexClickAction = placeSettlementSelfRaw; //TODO
+    if(playerList[0].name === myProfile.name) { //TODO ok technically this breaks if you name yourself one of the bot names imma hit this with a td bc lets be real who cares
         broad.html("Place your first Settlement.");
     } else {
         broad.html(playerList[0].name + " is placing their first Settlement.");
@@ -480,7 +488,6 @@ function drawPorts(ports, size) {
         const [x, y] = toTranslateCoordinates(sx, sy, size);
         let portDiv = $("<div class='port' style='background-image: url(" + toTileImage(resource) + "); transform: translate(" + x + "," + y + ")'></div>");
         portDiv.appendTo($('#ports'));
-        const gangwayLenFactor = 2/5;
         const h = size * ROOT_THREE_OVER_THREE;
         const w = 1;
         portVertices.forEach(vertex => { // (there are 2)
@@ -491,8 +498,8 @@ function drawPorts(ports, size) {
             const theta = Math.atan(dsx/dsy); //math!
             // using our own version of toTranslateCoordinates here - need to move up, not down
             const [x, y] = toTranslateCoordinates(vsx, vsy, size);
-            $("<div class='gangway' style='width: " + w + "vh; height: " + (h * gangwayLenFactor) + "vh; " +
-                "transform: translate(" + x + ", calc(" + y + ")) rotate(" + (-theta) + "rad)'></div>")
+            $("<div class='gangway' style='width: " + w + "vh; height: " + (h * GANGWAY_LEN_FACTOR) + "vh; " +
+                "transform: translate(" + x + ", " + y + ") rotate(" + (-theta) + "rad)'></div>")
                 .appendTo($('#ports')); //dont need to save it im never touching these again
         });
     });
