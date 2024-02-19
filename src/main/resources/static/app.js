@@ -23,15 +23,15 @@ const ROOT_THREE_OVER_THREE = SQRT_3/3;
 const SIZE_BUFFER = 1.03; //spent maybe three hours hassling with this multiplier only to decide it should probably just be 1 - keeping it for now?
 const VALUE_CHIP_SIZE = 2/9;
 const GANGWAY_LEN_FACTOR = 2/5;
-const ROAD_LEN_FACTOR = 3/5;
-const COLOR_RED = "rgba(175, 13, 13, 100%)";
-const COLOR_BLUE = "rgba(14, 71, 168, 100%)";
+const ROAD_LEN_FACTOR = 7/10;
+const COLOR_RED = "rgb(175, 13, 13)";
+const COLOR_BLUE = "rgb(14, 71, 168)";
 const COLOR_WHITE = "rgb(238,206,176)";
-const COLOR_ORANGE = "rgba(222, 115, 31, 100%)";
-const COLOR_YELLOW = "rgba(217, 176, 14, 100%)";
+const COLOR_ORANGE = "rgb(222, 115, 31)";
+const COLOR_YELLOW = "rgb(217, 176, 14)";
 const COLOR_GREEN = "rgb(20,107,29)";
-const COLOR_PURPLE = "rgba(115, 12, 164, 100%)";
-const COLOR_BLACK = "rgba(35, 12, 3, 100%)";
+const COLOR_PURPLE = "rgb(115, 12, 164)";
+const COLOR_BLACK = "rgb(35, 12, 3)";
 const COLOR_BLACK_DISPLAY = "rgb(93,93,91)";
 
 const dicePermutations = {
@@ -49,8 +49,9 @@ const dicePermutations = {
 }
 
 class Player {
-    constructor(name, color, isBot, isLeader, isMe) {
+    constructor(name, ordinal, color, isBot, isLeader, isMe) {
         this.name = name;
+        this.ordinal = ordinal;
         this.color = color;
         this.isBot = isBot;
         this.isLeader = isLeader;
@@ -68,22 +69,35 @@ class Vertex {
 }
 
 let vertexMap = new Map();
-let players = new Map();
+let roadMap = new Map(); //JSON(roadSpace) -> jQuery(road)
+let players = new Map(); //plID -> plProfile
 
 let vertexClickAction = function (vertex) {
     console.log("UNINSTRUCTED VERTEX ACTION FOR " + JSON.stringify(vertex));
 }
 
+let roadClickAction = function (road) {
+    console.log("UNINSTRUCTED ROAD ACTION FOR " + JSON.stringify(road));
+}
+
 const placeSettlementSelfRaw = function(vertex) {
     placeStructureColorRaw(vertex, "settlement", myProfile.color);
-    // v.css("background-color", getPieceColorStyle(myProfile.color));
-    // v.css("padding", "2vh");
+}
+
+const placeRoadSelfRaw = function(road) {
+    placeRoadColorRaw(road, myProfile.color);
 }
 
 function placeStructureColorRaw(vertex, structure, color) {
+    //could eventually make this with dynamic svs like the roads (this would remove the need to hardcode colors which would be great)
     const v = vertexMap.get(JSON.stringify(vertex)).jquery;
     const iurl = "images/structure/" + structure + "_" + (color.toLowerCase()) + ".png";
     v.append("<div class='" + structure + "' style='background-image: url(" + iurl + "); width: 10px; height: 10px;'></div>")
+}
+
+function placeRoadColorRaw(road, color) {
+    const r = roadMap.get(JSON.stringify(road)); //jquery is stored raw (dif from structure)
+    r.append($('<svg style="width: 100%; height: 100%;" xmlns="http://www.w3.org/2000/svg"><rect stroke-width="2px" stroke="black" fill="' + color + '" width="100%" height="100%"/></svg>'))
 }
 
 function getCookie(cname) {
@@ -246,6 +260,7 @@ async function updatePlayerList() {
     let playerList = await playersResponse.json();
     $('#connected-players').empty();
     users = [];
+    let num = 1;
     playerList.sort().forEach(pl => {
         console.log(pl);
         let color = pl.color;
@@ -254,11 +269,12 @@ async function updatePlayerList() {
         let isLeader = pl.isLeader;
         let playerID = pl.ID;
         let isMe = playerID === sessionID;
+        const plO = new Player(name, num++, color, isBot, isLeader, isMe);
         if(isMe) {
-            myProfile = pl;
+            myProfile = plO;
             amLeader = isLeader;
         }
-        users.push(new Player(name, color, isBot, isLeader, isMe));
+        users.push(plO);
         $('#connected-players').append("<div class='connected-player'>" + (isLeader ? "&#9733;" : "") + name + (isMe ? " (You)" : "") + (isBot ? " (BOT)" : "") + "</div>");
     })
     let numConnected = users.length;
@@ -304,9 +320,11 @@ async function joinGame(message) {
     drawPorts(body.ports, size);
     drawPlayers(body.playerOrder);
     prepareSetupPhase(body.playerOrder);
+    subscribeGameEvents(body.gameCode)
 }
 
 function drawPlayers(playerOrder) {
+    let num = 1;
     playerOrder.forEach(pl => {
         console.log(pl);
         let color = pl.color;
@@ -315,11 +333,8 @@ function drawPlayers(playerOrder) {
         let isLeader = pl.isLeader;
         let playerID = pl.ID;
         let isMe = playerID === sessionID;
-        if(isMe) {
-            myProfile = pl;
-            amLeader = isLeader;
-        }
-        const plO = new Player(name, color, isBot, isLeader, isMe);
+        const plO = new Player(name, num++, color, isBot, isLeader, isMe);
+        players.set(playerID, plO);
         if(isMe) {
             drawHero();
             return; //continue;
@@ -332,7 +347,7 @@ function getEnemyBanner(plO, orderPlace) {
     return               "<div class='polygon-banner' style='background-color: " + getPlayerColorStyle(plO.color) +";'>\n" +
         "                    <div class='name-display enemy'>\n" +
         "                        <div id='enemy" + orderPlace + "-score-value' class='victory-point-star'>0</div>\n" +
-        "                        <div id='enemy" + orderPlace + "-name' class='name'>" + (plO.name + (plO.isBot ? " (BOT)" : "")) +"</div>\n" +
+        "                        <div id='enemy" + orderPlace + "-name' class='name'>" + (plO.name + (plO.isBot ? " (BOT)" : "") + "<sup>(" + plO.ordinal +")</sup>") +"</div>\n" +
         "                    </div>\n" +
         "                    <div style='display: flex; flex-direction: row; justify-content: center;'>\n" +
         "                        <div class='horiz-info'>\n" +
@@ -385,7 +400,7 @@ function getPieceColorStyle(color) {
 
 function drawHero() { //hero profile in myProfile global
     //most of it is raw html, just gotta set name
-    $("#hero-name").html(myProfile.name);
+    $("#hero-name").html(myProfile.name + "<sup>(" + myProfile.ordinal + ")</sup>");
     $("#hero-section").css("background-color", getPlayerColorStyle(myProfile.color));
     $("#hero-lr-icon").css("filter", "brightness(25%)");
     $("#hero-la-icon").css("filter", "brightness(25%)");
@@ -395,7 +410,7 @@ function drawRoads(roadSpaces, size) {
     let vertices = $("#roads");
     vertices.empty();
     const h = size * ROOT_THREE_OVER_THREE;
-    const w = 1;
+    const w = 1.3;
     roadSpaces.forEach(space => {
         console.log(JSON.stringify(space));
         const [e1, e2] = space.ends;
@@ -405,11 +420,10 @@ function drawRoads(roadSpaces, size) {
         const ay = (e1y + e2y) / 2;
         const theta = (e1y - e2y) === 0 ? 0 : Math.atan((e1x - e2x) / (e1y - e2y));
         const [cx, cy] = toTranslateCoordinates(ax, ay, size);
-        let vDiv = $("<div class='road-space' style='width: " + w + "vh; height: " + (h * ROAD_LEN_FACTOR) + "vh; transform: translate(" + cx + "," + cy + ") rotate(" + (-theta) + "rad)'></div>");
-        vDiv.appendTo($('#roads'));
-        // const v = $("#lastV");
-        // vertexMap.set(JSON.stringify(vertex), new Vertex(v[0], v, sx, sy));
-        // v.removeAttr('id');
+        let r = $("<div class='road-space' style='width: " + w + "vh; height: " + (h * ROAD_LEN_FACTOR) + "vh; transform: translate(" + cx + "," + cy + ") rotate(" + (-theta) + "rad)'></div>");
+        r.click(function() {onRoadClick(space);});
+        r.appendTo($('#roads'));
+        roadMap.set(JSON.stringify(space), r);
     //     do something
     });
 }
@@ -422,6 +436,10 @@ function prepareSetupPhase(playerList) {
     console.log(playerList[0].name);
     console.log(myProfile.name);
     vertexClickAction = placeSettlementSelfRaw; //TODO
+    roadClickAction = placeRoadSelfRaw; //TODO
+    for(const r of roadMap.values()) {
+        r.hide();
+    }
     if(playerList[0].name === myProfile.name) { //TODO ok technically this breaks if you name yourself one of the bot names imma hit this with a td bc lets be real who cares
         broad.html("Place your first Settlement.");
     } else {
@@ -521,8 +539,13 @@ function getVertexCoordinate(coordinate, direction) {
 }
 
 function onVertexClick(vertex) {
-    console.log("Vertex @ " + JSON.stringify(vertex.tileCoordinate) + " to " + vertex.direction + " clicked!"); //TODO
+    // console.log("Vertex @ " + JSON.stringify(vertex.tileCoordinate) + " to " + vertex.direction + " clicked!"); //TODO
     vertexClickAction(vertex);
+}
+
+function onRoadClick(road) {
+    // console.log("Road @ " + JSON.stringify(road.ends) + " clicked!"); //TODO
+    roadClickAction(road);
 }
 
 function toScreenCoordinates(coordinate, size) {

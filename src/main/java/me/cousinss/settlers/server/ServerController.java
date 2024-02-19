@@ -134,6 +134,6 @@ public class ServerController {
      */
     public void freeServer(String gameCode) {
         this.servers.remove(gameCode);
-        System.out.println("SCONTR > Freeing server with code " + gameCode + ". " + this.servers.size() + " servers remain operational.");
+        System.out.println("SCONT > Freeing server with code " + gameCode + ". " + this.servers.size() + " servers remain operational.");
     }
 }
